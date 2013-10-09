@@ -107,12 +107,12 @@ void lcd_write4bits(uint8_t value, uint8_t mode) {
 	shiftOutMsbFirst(_led_r);
 	shiftOutLsbFirst(_led_l);
 	OUT_LATCH;
-	_delay_us(1);
+	// _delay_us(1);
 	
 	shiftOutMsbFirst(data);
 	shiftOutMsbFirst(_led_r);
 	shiftOutLsbFirst(_led_l);
 	OUT_LATCH;
-	_delay_us(100);
+	// _delay_us(10);
 }
 /** \} */

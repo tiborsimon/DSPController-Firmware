@@ -41,14 +41,22 @@ void io_init( void ) {
 	setInputWithPullup(E2_B_DDR, E2_B_PORT, E2_B_PIN);
 	setInputWithPullup(E3_B_DDR, E3_B_PORT, E3_B_PIN);
 	
-	/*=======================================================================
-	  SS PIN FOR DEBUG
-	=======================================================================*/
+	/*===========================================================
+	  S S   F O R   D E B U G
+	===========================================================*/
+	
 	setOutput(DDRB,PB2);
+	
+	
+	/*===========================================================
+	  S E T   D E F A U L T   S T A  T E S
+	===========================================================*/
+	
+	setHigh(IN_LOAD_PORT,IN_LOAD_PIN);
 }
 
 void timer_init() {
-	// init timer
+	// Triggers an interrupt in each 0.5 miliseconds.
 	// enable Timer/Counter0 Output Compare Match A Interrupt
 	TIMSK0 = (1<<OCIE0A);
 	
@@ -64,8 +72,10 @@ void timer_init() {
 
 
 ISR(TIMER0_COMPA_vect) {
-	setHigh(PORTB,PB2);
-	setLow(PORTB,PB2);
+	// Toggle SS pin
+	PINB |= (1<<PB2);
+	
+	
 }
 
 
@@ -100,6 +110,9 @@ int main(void) {
 		
 		
 		i++;
+		
+		_led_r++;
+		_led_l--;
 		
 		_delay_ms(300);
 		

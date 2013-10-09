@@ -165,6 +165,11 @@
                             	setLow((port), (pin)); \
                          	} while (0)
 							 
+#define negativePulse(port, pin) 	do { \
+								setLow((port), (pin)); \
+								setHigh((port), (pin)); \
+							} while (0)
+							 
 #define setLed(L, R) 	do { \
 							_led_l = L; \
 							_led_r = R; \
