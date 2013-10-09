@@ -21,9 +21,14 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-extern volatile uint8_t _led_l;
-extern volatile uint8_t _led_r;
-
+/**
+ * \addtogroup ledbars
+ * \{
+ * \brief Global variables
+ */
+extern volatile uint8_t _led_l;  /**< Global variable that holds the value of the left led bar. */
+extern volatile uint8_t _led_r;  /**< Global variable that holds the value of the right led bar. */
+/** \} */
 
 
 // #endif /* INCLUDES_H_ */

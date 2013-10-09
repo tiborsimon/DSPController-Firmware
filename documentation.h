@@ -11,6 +11,9 @@
  * \defgroup debug Debug tools
  * \brief  Tools for debugging the project.
  *
+ * \defgroup bsp Board Support Package
+ * \brief Low level layer that hides the hardware from the software.
+ *
  * \defgroup interfaces Interfaces
  * \brief Interface modules.
  * 

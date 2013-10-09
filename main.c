@@ -92,6 +92,8 @@ int main(void) {
 	
 	timer_init();
 	
+	volatile int a = readValue(IN_1);
+	
 	sei();
 	
 	setLed(0x0f,0xf0);
