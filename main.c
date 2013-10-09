@@ -22,37 +22,37 @@ uint8_t reverseByte( uint8_t x ) {
 
 void io_init( void ) {
 	// shift registers
-	setOutput(IO_CLK_DDR, IO_CLK_PIN);
-	setOutput(OUT_LATCH_DDR, OUT_LATCH_PIN);
-	setOutput(IN_LOAD_DDR, IN_LOAD_PIN);
-	setOutput(OUT_DDR, OUT_PIN);
+	setOutput(IO_CLK);
+	setOutput(OUT_LATCH);
+	setOutput(IN_LOAD);
+	setOutput(OUT);
 	
-	setInput(IN_1_DDR, IN_1_PIN);
-	setInput(IN_2_DDR, IN_2_PIN);
-	setInput(IN_3_DDR, IN_3_PIN);
-	setInput(IN_4_DDR, IN_4_PIN);
+	setInput(IN_1);
+	setInput(IN_2);
+	setInput(IN_3);
+	setInput(IN_4);
 	
 	// encoders
-	setInputWithPullup(E1_A_DDR, E1_A_PORT, E1_A_PIN);
-	setInputWithPullup(E2_A_DDR, E2_A_PORT, E2_A_PIN);
-	setInputWithPullup(E3_A_DDR, E3_A_PORT, E3_A_PIN);
+	setInputWPullup(E1_A);
+	setInputWPullup(E2_A);
+	setInputWPullup(E3_A);
 	
-	setInputWithPullup(E1_B_DDR, E1_B_PORT, E1_B_PIN);
-	setInputWithPullup(E2_B_DDR, E2_B_PORT, E2_B_PIN);
-	setInputWithPullup(E3_B_DDR, E3_B_PORT, E3_B_PIN);
+	setInputWPullup(E1_B);
+	setInputWPullup(E2_B);
+	setInputWPullup(E3_B);
 	
 	/*===========================================================
 	  S S   F O R   D E B U G
 	===========================================================*/
 	
-	setOutput(DDRB,PB2);
+	output(DDRB,PB2);
 	
 	
 	/*===========================================================
 	  S E T   D E F A U L T   S T A  T E S
 	===========================================================*/
 	
-	setHigh(IN_LOAD_PORT,IN_LOAD_PIN);
+	setHigh(IN_LOAD);
 }
 
 void timer_init() {

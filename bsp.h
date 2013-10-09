@@ -7,7 +7,24 @@
   H A R D W A R E   A B S T R A C T I O N   L A Y E R
 ===========================================================*/
 
-// SHIFT REGISTERS
+// SIGNAL NAMES
+#define IO_CLK			IO_CLK
+#define OUT_LATCH		OUT_LATCH
+#define IN_LOAD			IN_LOAD
+#define OUT				OUT
+#define IN_1			IN_1
+#define IN_2			IN_2
+#define IN_3			IN_3
+#define IN_4			IN_4
+#define E1_A			E1_A
+#define E1_B			E1_B
+#define E2_A			E2_A
+#define E2_B			E2_B
+#define E3_A			E3_A
+#define E3_B			E3_B
+
+
+// SHIFT REGISTERS 
 #define IO_CLK_DDR 		DDRC
 #define IO_CLK_PORT		PORTC
 #define IO_CLK_PIN 		PC0
@@ -152,27 +169,32 @@
 
 
 // MACROS
-#define setOutput(ddr, pin) ((ddr) |= (1 << (pin)))
-#define setInput(ddr, pin)	((ddr) &= ~(1 << (pin)))
-#define setInputWithPullup(ddr, port, pin)	do { \
-												(ddr) &= ~(1 << (pin)); \
-												(port) |= (1 << (pin)); \
-											} while (0)
-#define setLow(port, pin) 	((port) &=  ~(1 << (pin)))
-#define setHigh(port, pin) 	((port) |= (1 << (pin)))
-#define pulse(port, pin) 	do { \
-								setHigh((port), (pin)); \
-                            	setLow((port), (pin)); \
-                         	} while (0)
+#define output(ddr,pin)			((ddr) |= (1 << (pin)))
+#define input(ddr,pin)			((ddr) &= ~(1 << (pin)))
+
+#define setOutput(pin)			output(pin##_DDR,pin##_PIN)
+#define setInput(pin)			input(pin##_DDR,pin##_PIN)
+
+#define setInputWPullup(pin)	do { \
+									(pin##_DDR) &= ~(1 << (pin##_PIN)); \
+									(pin##_PORT) |= (1 << (pin##_PIN)); \
+								} while (0)
+											
+#define setLow(pin) 			((pin##_PORT) &=  ~(1 << (pin##_PIN)))
+#define setHigh(pin) 			((pin##_PORT) |= (1 << (pin##_PIN)))
+#define pulse(pin) 				do { \
+									setHigh(pin); \
+                            		setLow(pin); \
+                         		} while (0)
 							 
-#define negativePulse(port, pin) 	do { \
-								setLow((port), (pin)); \
-								setHigh((port), (pin)); \
-							} while (0)
+#define negativePulse(pin)		do { \
+									setLow(pin); \
+									setHigh(pin); \
+								} while (0)
 							 
-#define setLed(L, R) 	do { \
-							_led_l = L; \
-							_led_r = R; \
-						} while (0)
+#define setLed(L, R) 			do { \
+									_led_l = L; \
+									_led_r = R; \
+								} while (0)
 
 #endif // #ifndef _HAL_H_
