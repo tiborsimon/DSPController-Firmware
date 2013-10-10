@@ -86,13 +86,17 @@ void lcd_writeString(char *s) {
 
 // high level driver
 void lcd_command(uint8_t value) {
+	cli();
 	lcd_write4bits(value>>4, 0);
 	lcd_write4bits(value, 0);
+	sei();
 }
 
 void lcd_write(char value) {
+	cli();
 	lcd_write4bits(value>>4, 1);
 	lcd_write4bits(value, 1);
+	sei();
 }
 
 // low level data pushing

@@ -8,9 +8,18 @@
 
 #include "includes.h"
 
+
+/*================================================================
+  D E C L A R E   G L O B A L   V A R I A B L E S
+================================================================*/
+
+// LED BARS
 volatile uint8_t _led_l = 0;
 volatile uint8_t _led_r = 0;
 
+// INPUT LIBRARY
+volatile uint16_t debounce[32];
+volatile uint16_t button_status[32];
 
 
 uint8_t reverseByte( uint8_t x ) {
@@ -49,7 +58,7 @@ void io_init( void ) {
 	
 	
 	/*===========================================================
-	  S E T   D E F A U L T   S T A  T E S
+	  S E T   D E F A U L T   S T A T E S
 	===========================================================*/
 	
 	setHigh(IN_LOAD);
@@ -64,18 +73,11 @@ void timer_init() {
 	TCCR0A = (1<<WGM01) | (0<<WGM00);
 	
 	// prescaler: 64, CTC 125 = 0.5ms interrupts
-	OCR0A = 125;
+	OCR0A = 255;
 	
 	// set prescaler to 64
-	TCCR0B = (0<<CS02) | (1<<CS01) | (1<<CS00);
-}
-
-
-ISR(TIMER0_COMPA_vect) {
-	// Toggle SS pin
-	PINB |= (1<<PB2);
-	
-	
+	// TCCR0B = (0<<CS02) | (1<<CS01) | (1<<CS00);
+	TCCR0B = (1<<CS02) | (0<<CS01) | (1<<CS00);
 }
 
 
@@ -86,13 +88,11 @@ int main(void) {
 	
 	int i = 0;
 
-	usart_logger_init();
 	io_init();
+	input_init();
 	lcd_init();
-	
 	timer_init();
-	
-	volatile int a = readValue(IN_1);
+	usart_logger_init();
 	
 	sei();
 	
@@ -100,7 +100,7 @@ int main(void) {
 	
 	while(1) {
 		
-		sprintf(s,"dori: %d",i);
+		sprintf(s,"Dori: %d",i);
 		lcd_home();
 		
 		if (i%2 == 0) {
@@ -109,22 +109,12 @@ int main(void) {
 		
 		lcd_writeString(s);
 		
-		
-		
 		i++;
 		
 		_led_r++;
 		_led_l--;
 		
 		_delay_ms(300);
-		
-		/*
-		if (++i>19) {
-			i = 0;
-		}
-		*/
-		
-		LOG("%d\n",i);
 	}
 	
 	return 0;

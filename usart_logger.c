@@ -17,7 +17,7 @@
 	#endif
 
 	#ifndef BAUD
-	#define BAUD 9600  /**< UART baudrate */
+	#define BAUD 57600  /**< UART baudrate */
 	#endif
 	
 	#include <util/setbaud.h>

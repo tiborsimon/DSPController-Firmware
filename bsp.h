@@ -276,18 +276,24 @@
 	/*=======================================================================================
 	  MACRO  ::  L O G I C A L   S T A T E   A S S I G N S 
 	=======================================================================================*/
+	
+	#define toggle(pin,name)	((pin) |= (1 << (name)))
+	
+	#define low(port,name)		((port) &=  ~(1 << (name)))
+	
+	#define high(port,name)		((port) |= (1 << (name)))
 				
 	/**
-	 * Macro for setting the given pin state to low logic level.
+	 * Higher level macro for setting the given pin state to low logic level.
 	 * \param[in] name The name of the given pin.
 	 */						
-	#define setLow(name)		((name##_PORT) &=  ~(1 << (name##_NAME)))
+	#define setLow(name)		low(name##_PORT,name##_NAME)
 	
 	/**
-	 * Macro for setting the given pin state to high logic level.
+	 * Higher level macro for setting the given pin state to high logic level.
 	 * \param[in] name The name of the given pin.
 	 */	
-	#define setHigh(name)	((name##_PORT) |= (1 << (name##_NAME)))
+	#define setHigh(name)		high(name##_PORT,name##_NAME)
 	
 	
 	/*=======================================================================================

@@ -16,6 +16,7 @@
 #include "bsp.h"
 #include "shift.h"
 #include "lcd.h"
+#include "input.h"
 
 #define F_CPU 16000000UL
 #include <util/delay.h>
