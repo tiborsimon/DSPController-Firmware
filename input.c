@@ -20,20 +20,12 @@ void input_init() {
 
 ISR(TIMER0_COMPA_vect) {
 	
-	uint8_t static debug = 0;
-	
 	uint8_t i = 7;
 	uint8_t p = 0;
 	
-	if (debug++ < 50) {
-		// return;
-	}
-	
-	debug = 0;
-	
 	// Toggle SS pin for debug ONLY
-	// high(PORTB,PB2);
-	toggle(PINB,PB2);
+	high(PORTB,PB2);
+	// toggle(PINB,PB2);
 	
 	// start debounce algorithm
 	// LOG("most\n");
@@ -56,22 +48,58 @@ ISR(TIMER0_COMPA_vect) {
 	// run debounce algorithm
 	do {
 		
-		/*
-		char k = 19;
-		if (p==k) LOG("%d %x\n",p,debounce[p]);
-		k += 4;
-		if (p==k) LOG("%d %x\n",p,debounce[p]);
-		k += 4;
-		if (p==k) LOG("%d %x\n",p,debounce[p]);
-		k += 4;
-		if (p==k) LOG("%d %x\n",p,debounce[p]);
-		k += 4;
-		*/
+		if ((debounce[p] & DEBOUNCE_MASK) == 0) {
+			
+			// PREV = 1 ==> falling edge
+			if ((button_status[p] & PREVIOUS_MASK) != 0) {
+				
+				LOG("%d falling : %x\n", p, (button_status[p]>>12)&0x3);
+				
+				// clear actual and previous states
+				button_status[p] &= PREVIOUS_CLEAR & ACTUAL_CLEAR;
+				
+				// counter is less than the threshold, and no short or long press was administrated
+				if (((button_status[p] & COUNTER_MASK) < COUNTER_THRESHOLD) &
+					((button_status[p] & SHORT_MASK) == 0) &
+					((button_status[p] & LONG_MASK) == 0) ) {
+						// short press
+						button_status[p] |= SHORT_SET;
+						LOG("%d short\n", p);
+				}
+				
+				// clear counter
+				button_status[p] &= COUNTER_CLEAR;
+			}
+			continue;
+		}
 		
-		if ( (debounce[p] & DEBOUNCE_MASK) == DEBOUNCE_MASK  ) {
-			// high(PORTB,PB2);
-		} else {
-			// low(PORTB,PB2);
+		if ((debounce[p] & DEBOUNCE_MASK) == DEBOUNCE_MASK ) {
+			
+			// PREV = 0 ==> rising edge
+			if ((button_status[p] & PREVIOUS_MASK) == 0) {
+				
+				LOG("%d rising : %x\n", p, (button_status[p]>>12)&0x3);
+				
+				// clear actual and previous states
+				button_status[p] |= PREVIOUS_SET | ACTUAL_SET;
+				
+				continue;
+			}
+			
+			if (((button_status[p] & LONG_MASK) == 0) &
+				((button_status[p] & SHORT_MASK) == 0)) {
+				
+				// increment the counter
+				button_status[p]++;
+				// LOG("%d counter: %d\n", p, (button_status[p] & COUNTER_MASK));
+				
+				if ((button_status[p] & COUNTER_MASK) >= COUNTER_THRESHOLD) {
+					// threshold reached = long press
+					button_status[p] |= LONG_SET;
+					LOG("%d long\n", p);
+				}
+			}
+			
 		}
 		
 	} while (p--);
@@ -79,7 +107,7 @@ ISR(TIMER0_COMPA_vect) {
 	
 	
 	// debug ISR execution time
-	// low(PORTB,PB2);
+	low(PORTB,PB2);
 	
 	
 }
