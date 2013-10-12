@@ -67,8 +67,9 @@ ISR(TIMER0_COMPA_vect) {
 						LOG("%d short\n", p);
 				}
 				
+				// clear lock 
 				// clear counter
-				button_status[p] &= COUNTER_CLEAR;
+				button_status[p] &= COUNTER_CLEAR & LOCK_CLEAR;
 			}
 			continue;
 		}
@@ -87,15 +88,17 @@ ISR(TIMER0_COMPA_vect) {
 			}
 			
 			if (((button_status[p] & LONG_MASK) == 0) &
-				((button_status[p] & SHORT_MASK) == 0)) {
+				((button_status[p] & SHORT_MASK) == 0) &
+				((button_status[p] & LOCK_MASK) == 0)) {
 				
 				// increment the counter
 				button_status[p]++;
 				// LOG("%d counter: %d\n", p, (button_status[p] & COUNTER_MASK));
 				
 				if ((button_status[p] & COUNTER_MASK) >= COUNTER_THRESHOLD) {
-					// threshold reached = long press
-					button_status[p] |= LONG_SET;
+					// threshold reached = long press :: lock
+					button_status[p] |= LONG_SET | LOCK_SET;
+					
 					LOG("%d long\n", p);
 				}
 			}

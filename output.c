@@ -6,7 +6,7 @@
  * \version 1.0
  */
 
-#include "lcd.h"
+#include "output.h"
 #include <string.h>
 
 

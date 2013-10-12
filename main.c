@@ -73,12 +73,32 @@ void timer_init() {
 	TCCR0A = (1<<WGM01) | (0<<WGM00);
 	
 	// prescaler: 64, CTC 125 = 0.5ms interrupts
-	OCR0A = 125;
+	// OCR0A = 125; // 0.5ms @ div64
+	OCR0A = 250; // 1ms @ div64
 	
 	// set prescaler to 64
 	TCCR0B = (0<<CS02) | (1<<CS01) | (1<<CS00);  // div 64
 	// TCCR0B = (1<<CS02) | (0<<CS01) | (1<<CS00); // div 1024
 }
+
+void print_prev(uint8_t p, uint8_t prev) {
+	char s[16];
+	
+	if (prev == 1) {
+		sprintf(s,"%d: LONG    ",p);
+		lcd_newLine();
+		lcd_writeString(s);
+	}
+	
+	if (prev == 2) {
+		sprintf(s,"%d: SHORT    ",p);
+		lcd_newLine();
+		lcd_writeString(s);
+	}
+	
+}
+
+
 
 
 
@@ -87,6 +107,9 @@ int main(void) {
 	char s[16];
 	
 	int i = 0;
+	
+	uint8_t p_prev = 0;
+	uint8_t press_prev = 0;
 
 	io_init();
 	input_init();
@@ -109,6 +132,10 @@ int main(void) {
 				sprintf(s,"%d: SHORT    ",i);
 				lcd_home();
 				lcd_writeString(s);
+				
+				print_prev(p_prev,press_prev);
+				p_prev = i;
+				press_prev = 2;
 			}
 			
 			if ((button_status[i] & LONG_MASK) != 0 ) {
@@ -119,6 +146,10 @@ int main(void) {
 				sprintf(s,"%d: LONG    ",i);
 				lcd_home();
 				lcd_writeString(s);
+				
+				print_prev(p_prev,press_prev);
+				p_prev = i;
+				press_prev = 1;
 			}
 			
 		}

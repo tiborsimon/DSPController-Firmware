@@ -29,16 +29,20 @@
 #define LONG_SET		LONG_MASK
 #define LONG_CLEAR		0xefff
 
-#define COUNTER_MASK	0x0fff
-#define COUNTER_CLEAR	0xf000
-#define COUNTER_THRESHOLD 1000
+#define LOCK_MASK		0x0800
+#define LOCK_SET		LOCK_MASK
+#define LOCK_CLEAR		0xf7ff
+
+#define COUNTER_MASK	0x07ff
+#define COUNTER_CLEAR	0xf800
+#define COUNTER_THRESHOLD 600
 
 extern volatile uint8_t debounce[32];
 
 /**
  * Button's status
- *  | 15             | 14           | 13          | 12         | 11 : 0             |
- *  | previous state | actual state | short press | long press | long press counter |
+ *  | 15             | 14           | 13          | 12         | 11        | 10 : 0             |
+ *  | previous state | actual state | short press | long press | long lock | long press counter |
  */
 extern volatile uint16_t button_status[32];
 

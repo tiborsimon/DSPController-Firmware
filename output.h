@@ -9,8 +9,8 @@
  */
 
 
-#ifndef LCD_H_
-#define LCD_H_
+#ifndef OUTPUT_H_
+#define OUTPUT_H_
 
 	#include "includes.h"
 
@@ -96,5 +96,5 @@
 	void lcd_write4bits(uint8_t value, uint8_t mode);
 	
 
-#endif /* LCD_H_ */
+#endif /* OUTPUT_H_ */
 /** \} */

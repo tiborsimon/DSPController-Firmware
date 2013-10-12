@@ -15,7 +15,7 @@
 #include "usart_logger.h"
 #include "bsp.h"
 #include "shift.h"
-#include "lcd.h"
+#include "output.h"
 #include "input.h"
 
 #define F_CPU 16000000UL
