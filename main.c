@@ -68,6 +68,9 @@ void io_init( void ) {
 	setHigh(IN_LOAD);
 }
 
+/**
+ * Init Timer0 to Output Compare Match A Interrupt @ 0.5 ms.
+ */
 void timer_init() {
 	// Triggers an interrupt in each 0.5 miliseconds.
 	// enable Timer/Counter0 Output Compare Match A Interrupt
