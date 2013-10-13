@@ -11,7 +11,7 @@
 #ifndef USART_LOGGER_H_
 #define USART_LOGGER_H_
 
-	// #define LOGGER_ON_ /*!< Comment out this preprocessor variable and USART Logger will not compile to your binary file. */
+	// #define LOGGER_ON_  /*!< Comment out this preprocessor variable and USART Logger will not compile to your binary file. */
 
 	#ifdef LOGGER_ON_
 		#define LOG(A, ...) printf(A,##__VA_ARGS__)	/**< Logger macro that wraps around the \a printf function. */
@@ -33,7 +33,10 @@
 		#define LOG(A, ...)	 /* n o t h i n g */	/**< Logger macro if logging is turned off */
 	#endif
 	
-	/** Initialization function that configures the UART hardware and redirects the standard IO stream to the UART itself. */
+	/** 
+	 * Initialization function that configures the UART hardware 
+	 * and redirects the standard IO stream to the UART itself. 
+	 */
 	void usart_logger_init(void);	
 	
 

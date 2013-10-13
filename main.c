@@ -21,6 +21,10 @@ volatile uint8_t _led_r = 0;
 volatile uint8_t debounce[32];
 volatile uint16_t button_status[32];
 
+volatile uint8_t encoder_debounce[6];
+volatile int8_t encoder_counter[3];
+volatile int8_t encoder_status[6];
+
 
 uint8_t reverseByte( uint8_t x ) {
 	x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);
@@ -73,8 +77,8 @@ void timer_init() {
 	TCCR0A = (1<<WGM01) | (0<<WGM00);
 	
 	// prescaler: 64, CTC 125 = 0.5ms interrupts
-	// OCR0A = 125; // 0.5ms @ div64
-	OCR0A = 250; // 1ms @ div64
+	OCR0A = 125; // 0.5ms @ div64
+	// OCR0A = 250; // 1ms @ div64
 	
 	// set prescaler to 64
 	TCCR0B = (0<<CS02) | (1<<CS01) | (1<<CS00);  // div 64
@@ -85,13 +89,13 @@ void print_prev(uint8_t p, uint8_t prev) {
 	char s[16];
 	
 	if (prev == 1) {
-		sprintf(s,"%d: LONG    ",p);
+		sprintf(s,"%d: LONG       ",p);
 		lcd_newLine();
 		lcd_writeString(s);
 	}
 	
 	if (prev == 2) {
-		sprintf(s,"%d: SHORT    ",p);
+		sprintf(s,"%d: SHORT       ",p);
 		lcd_newLine();
 		lcd_writeString(s);
 	}
@@ -119,17 +123,24 @@ int main(void) {
 	
 	sei();
 	
-	setLed(0x0f,0xf0);
+	setLed(0x01,0x01);
+	
+	sprintf(s," DSP Controller");
+	lcd_writeString(s);
+	lcd_newLine();
+	sprintf(s,"    demo app");
+	lcd_writeString(s);
 	
 	while(1) {
 		
+		// loop through the buttons and ask for events
 		for (i=0;i<32;i++) {
-			if ((button_status[i] & SHORT_MASK) != 0 ) {
-				cli();
-				button_status[i] &= SHORT_CLEAR;
-				sei();
+			
+			uint8_t button_event = get_button_event(i);
+			
+			if ( button_event == EVENT_SHORT_PRESS ) {
 				
-				sprintf(s,"%d: SHORT    ",i);
+				sprintf(s,"%d: SHORT       ",i);
 				lcd_home();
 				lcd_writeString(s);
 				
@@ -138,12 +149,9 @@ int main(void) {
 				press_prev = 2;
 			}
 			
-			if ((button_status[i] & LONG_MASK) != 0 ) {
-				cli();
-				button_status[i] &= LONG_CLEAR;
-				sei();
+			if ( button_event == EVENT_LONG_PRESS ) {
 				
-				sprintf(s,"%d: LONG    ",i);
+				sprintf(s,"%d: LONG       ",i);
 				lcd_home();
 				lcd_writeString(s);
 				
@@ -152,6 +160,50 @@ int main(void) {
 				press_prev = 1;
 			}
 			
+		}
+		
+		// get encoders values
+		for (i=0;i<3;i++) {
+			
+			int8_t encoder_value = get_encoder_value(i);
+			
+			if (encoder_value > 0) {
+				
+				if (i==0) {
+					_led_l = _led_l<<1 | 0x01;
+					refreshLeds();
+				}
+				
+				if (i==2) {
+					_led_r = _led_r<<1 | 0x01;
+					refreshLeds();
+				}
+				
+				if (i==1) {
+					_led_r = _led_r<<1 | 0x01;
+					_led_l = _led_l<<1 | 0x01;
+					refreshLeds();
+				}
+				
+			} else if (encoder_value < 0) {
+				
+				if (i==0) {
+					_led_l = _led_l>>1 | 0x01;
+					refreshLeds();
+				}
+				
+				if (i==2) {
+					_led_r = _led_r>>1 | 0x01;
+					refreshLeds();
+				}
+				
+				if (i==1) {
+					_led_r = _led_r>>1 | 0x01;
+					_led_l = _led_l>>1 | 0x01;
+					refreshLeds();
+				}
+				
+			}
 		}
 		
 		/*

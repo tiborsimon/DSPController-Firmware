@@ -72,6 +72,7 @@
 	/**
 	 * Higher level communication function. It sends a command to the 
 	 * LCD display.
+	 * ATOMIC FUNCTION
 	 * \param[in] value The command you want to send.
 	 */
 	void lcd_command(uint8_t value);
@@ -79,6 +80,7 @@
 	/**
 	 * Higher level communication function. It sends a character to the 
 	 * LCD display.
+	 * ATOMIC FUNCTION
 	 * \param[in] value The character you want to send.
 	 */
 	void lcd_write(char value);
@@ -94,6 +96,19 @@
 	 * data, mode=0: command.
 	 */
 	void lcd_write4bits(uint8_t value, uint8_t mode);
+	
+	
+	/*===================================================================
+	   L E D   B A R   F U N C T I O N S
+	===================================================================*/
+	
+	/**
+	 * Low level function that refreshes the two led bar with the current
+	 * values of the global led variables. It can be handy if there is no
+	 * new display data to shift in but the led values were overridden.
+	 * ATOMIC FUNCTION
+	 */
+	void refreshLeds();
 	
 
 #endif /* OUTPUT_H_ */
