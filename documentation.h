@@ -21,6 +21,14 @@
  * \ingroup interfaces
  * \brief All of the input interface modules.
  *
+ * \defgroup buttons Buttons
+ * \ingroup inputs
+ * \brief All the buttons of the DSP controller driven by shift registers.
+ *
+ * \defgroup encoders Encoders
+ * \ingroup inputs
+ * \brief Encoders.
+ *
  * \defgroup outputs Outputs
  * \ingroup interfaces 
  * \brief All of the output interface modules.

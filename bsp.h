@@ -277,10 +277,25 @@
 	  MACRO  ::  L O G I C A L   S T A T E   A S S I G N S 
 	=======================================================================================*/
 	
+	/**
+	 * Low level macro that toggles a pin based on the AVR IO architecture's hardware XOR feature.
+	 * \param[in] pin The PINX register for the given pin.
+	 * \param[in] name The name of the given pin.
+	 */
 	#define toggle(pin,name)	((pin) |= (1 << (name)))
 	
+	/**
+	 * Low level macro that sets the given pin to low logical state.
+	 * \param[in] port The PORTX register for the given pin.
+	 * \param[in] name The name of the given pin.
+	 */
 	#define low(port,name)		((port) &=  ~(1 << (name)))
 	
+	/**
+	 * Low level macro that sets the given pin to high logical state.
+	 * \param[in] port The PORTX register for the given pin.
+	 * \param[in] name The name of the given pin.
+	 */
 	#define high(port,name)		((port) |= (1 << (name)))
 				
 	/**

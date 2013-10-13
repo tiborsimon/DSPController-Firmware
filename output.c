@@ -119,4 +119,15 @@ void lcd_write4bits(uint8_t value, uint8_t mode) {
 	pulse(OUT_LATCH);
 	// _delay_us(10);
 }
+
+
+void refreshLeds() {
+	cli();
+	shiftOutMsbFirst(LCD_BL);
+	shiftOutMsbFirst(_led_r);
+	shiftOutLsbFirst(_led_l);
+	pulse(OUT_LATCH);
+	sei();
+}
+
 /** \} */
