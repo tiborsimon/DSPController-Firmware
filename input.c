@@ -45,7 +45,7 @@ ISR(TIMER0_COMPA_vect) {
 	
 	// Toggle SS pin for debug ONLY
 	// high(PORTB,PB2);
-	// toggle(PINB,PB2);
+	toggle(PINB,PB2);
 	
 	if (blocker++ >= 1) {
 		blocker = 0;

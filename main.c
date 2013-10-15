@@ -55,13 +55,6 @@ void io_init( void ) {
 	setInputWPullup(E3_B);
 	
 	/*===========================================================
-	  S S   F O R   D E B U G
-	===========================================================*/
-	
-	output(DDRB,PB2);
-	
-	
-	/*===========================================================
 	  S E T   D E F A U L T   S T A T E S
 	===========================================================*/
 	
@@ -105,6 +98,10 @@ void print_prev(uint8_t p, uint8_t prev) {
 	
 }
 
+ISR(SPI_STC_vect) {
+	SPDR = 0x55;
+}
+
 
 
 
@@ -123,6 +120,7 @@ int main(void) {
 	lcd_init();
 	timer_init();
 	usart_logger_init();
+	spi_init();
 	
 	sei();
 	

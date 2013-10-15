@@ -31,8 +31,38 @@
 	#define E2_B			E2_B			/**< Second encoder's B signal. */
 	#define E3_A			E3_A			/**< Third encoder's A signal. */
 	#define E3_B			E3_B			/**< Third encoder's B signal. */
+	#define MOSI			MOSI			/**< SPI MOSI signal. */
+	#define MISO			MISO			/**< SPI MISO signal. */
+	#define SCK				SCK				/**< SPI SCK signal. */
+	#define SS				SS				/**< SPI SS signal. */		
 
 
+
+	/*=======================================================================================
+	  SIGNALS TO IO PORTS  ::  S P I
+	=======================================================================================*/
+	
+	#define MOSI_DDR 		DDRB			/**< Data Direction Register for MOSI. */
+	#define MOSI_PORT		PORTB			/**< Port Register for MOSI. */
+	#define MOSI_PIN		PINB			/**< Pin Register for MOSI. */
+	#define MOSI_NAME 		PB3				/**< Pin name for MOSI. */
+	
+	#define MISO_DDR 		DDRB			/**< Data Direction Register for MISO. */
+	#define MISO_PORT		PORTB			/**< Port Register for MISO. */
+	#define MISO_PIN		PINB			/**< Pin Register for MISO. */
+	#define MISO_NAME 		PB4				/**< Pin name for MISO. */
+	
+	#define SS_DDR 			DDRB			/**< Data Direction Register for SS. */
+	#define SS_PORT			PORTB			/**< Port Register for SS. */
+	#define SS_PIN			PINB			/**< Pin Register for SS. */
+	#define SS_NAME 		PPB2			/**< Pin name for SS. */
+	
+	#define SCK_DDR 		DDRB			/**< Data Direction Register for SCK. */
+	#define SCK_PORT		PORTB			/**< Port Register for SCK. */
+	#define SCK_PIN			PINB			/**< Pin Register for SCK. */
+	#define SCK_NAME 		PB5				/**< Pin name for SCK. */
+	
+	
 	/*=======================================================================================
 	  SIGNALS TO IO PORTS  ::  S H I F T   R E G I S T E R S
 	=======================================================================================*/

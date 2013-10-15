@@ -17,6 +17,7 @@
 #include "shift.h"
 #include "output.h"
 #include "input.h"
+#include "spi.h"
 
 #define F_CPU 16000000UL
 #include <util/delay.h>
