@@ -17,13 +17,21 @@
 volatile uint8_t _led_l = 0;
 volatile uint8_t _led_r = 0;
 
-// INPUT LIBRARY
+// INPUT LIBRARY VARIABLES
 volatile uint8_t debounce[32];
 volatile uint16_t button_status[32];
 
 volatile uint8_t encoder_debounce[6];
 volatile int8_t encoder_counter[3];
 volatile int8_t encoder_status[6];
+
+volatile uint8_t status[16];
+volatile uint8_t status_ready;
+
+// SPI VARIABLES
+volatile uint8_t spi_state;
+volatile uint8_t spi_pointer;
+volatile uint8_t spi_transmit_buffer[16];
 
 
 uint8_t reverseByte( uint8_t x ) {
@@ -98,12 +106,6 @@ void print_prev(uint8_t p, uint8_t prev) {
 	
 }
 
-ISR(SPI_STC_vect) {
-	SPDR = 0x55;
-}
-
-
-
 
 
 int main(void) {
@@ -112,8 +114,9 @@ int main(void) {
 	
 	int i = 0;
 	
-	uint8_t p_prev = 0;
-	uint8_t press_prev = 0;
+	// uint8_t p_prev = 0;
+	// uint8_t press_prev = 0;
+	
 
 	io_init();
 	input_init();
@@ -134,6 +137,7 @@ int main(void) {
 	
 	while(1) {
 		
+		/*
 		// loop through the buttons and ask for events
 		for (i=0;i<32;i++) {
 			
@@ -161,7 +165,7 @@ int main(void) {
 				press_prev = 1;
 			}
 			
-		}
+		} */
 		
 		// get encoders values
 		for (i=0;i<3;i++) {

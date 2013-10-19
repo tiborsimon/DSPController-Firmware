@@ -31,6 +31,14 @@ void input_init() {
 	encoder_counter[0] = 0;
 	encoder_counter[1] = 0;
 	encoder_counter[2] = 0;
+	
+	// zero out status register
+	i=15;
+	do {
+		status[i] = 0;
+	} while (i--);
+	
+	status_ready = 0;
 }
 
 /**
@@ -41,11 +49,15 @@ ISR(TIMER0_COMPA_vect) {
 	uint8_t i = 7;
 	uint8_t p = 0;
 	
+	uint8_t something_happened = 0;
+	
 	static uint8_t blocker = 0;
+	
+	sei();
 	
 	// Toggle SS pin for debug ONLY
 	// high(PORTB,PB2);
-	toggle(PINB,PB2);
+	// toggle(PINB,PB2);
 	
 	if (blocker++ >= 1) {
 		blocker = 0;
@@ -77,6 +89,10 @@ ISR(TIMER0_COMPA_vect) {
 				// PREV = 1 ==> falling edge
 				if ((button_status[p] & PREVIOUS_MASK) != 0) {
 					
+					/////////////////////////////////////////////////
+					spi_add_up(p);
+					/////////////////////////////////////////////////
+					
 					// clear actual and previous states
 					button_status[p] &= PREVIOUS_CLEAR & ACTUAL_CLEAR;
 					
@@ -85,7 +101,12 @@ ISR(TIMER0_COMPA_vect) {
 						((button_status[p] & SHORT_MASK) == 0) &
 						((button_status[p] & LONG_MASK) == 0) ) {
 						// short press
-						button_status[p] |= SHORT_SET;
+						// button_status[p] |= SHORT_SET;
+						something_happened = 1;
+						
+						/////////////////////////////////////////////////
+						spi_add_short_press(p);
+						/////////////////////////////////////////////////
 					}
 					
 					// clear counter & clear lock
@@ -98,6 +119,10 @@ ISR(TIMER0_COMPA_vect) {
 				
 				// PREV = 0 ==> rising edge
 				if ((button_status[p] & PREVIOUS_MASK) == 0) {
+					
+					/////////////////////////////////////////////////
+					spi_add_down(p);
+					/////////////////////////////////////////////////
 					
 					// clear actual and previous states
 					button_status[p] |= PREVIOUS_SET | ACTUAL_SET;
@@ -114,7 +139,13 @@ ISR(TIMER0_COMPA_vect) {
 					
 					if ((button_status[p] & COUNTER_MASK) >= COUNTER_THRESHOLD) {
 						// threshold reached = long press :: lock
-						button_status[p] |= LONG_SET | LOCK_SET;
+						// button_status[p] |= LONG_SET | LOCK_SET;
+						button_status[p] |= LOCK_SET;
+						something_happened = 1;
+						
+						/////////////////////////////////////////////////
+						spi_add_long_press(p);
+						/////////////////////////////////////////////////
 					}
 				}
 			}
@@ -166,10 +197,11 @@ ISR(TIMER0_COMPA_vect) {
 			// P=1 and A=0 == falling edge
 			if ( (encoder_status[i] & (E_ACTUAL_MASK | E_PREVIOUS_MASK) ) == 0x40 ) {
 				
+				something_happened = 1;
+				
 				if ((encoder_status[i+1] & E_ACTUAL_MASK) == 0) {
 					// turn left
 					encoder_counter[i>>1]++;
-					toggle(PINB,PB2);
 				} else {
 					// turn right
 					encoder_counter[i>>1]--;
@@ -180,6 +212,64 @@ ISR(TIMER0_COMPA_vect) {
 		
 	} while (i--);
 	
+	// ==============================================================
+	//   G E N E R A T E   O U T P U T
+	// ==============================================================
+	
+	cli();
+	if (something_happened) {
+		
+		/*
+		uint8_t temp = 0;
+		
+		// assemble buttons
+		status[0] = button_status[31] >> 7 | button_status[27] >> 13;
+		status[1] = button_status[23] >> 7 | button_status[19] >> 13;
+		status[2] = button_status[15] >> 7 | button_status[11] >> 13;
+		status[3] = button_status[7] >> 7  | button_status[3] >> 13;
+		status[4] = button_status[2] >> 7  | button_status[14] >> 13;
+		status[5] = button_status[10] >> 7 | button_status[6] >> 13;
+		status[6] = button_status[18] >> 7 | button_status[1] >> 13;
+		status[7] = button_status[26] >> 7 | button_status[22] >> 13;
+		status[8] = button_status[30] >> 7 | button_status[17] >> 13;
+		status[9] = button_status[13] >> 7 | button_status[9] >> 13;
+		status[10] = button_status[5] >> 7 | button_status[29] >> 13;
+		status[11] = button_status[25] >> 7 | button_status[21] >> 13;
+		
+		// assemble dip switch
+		temp = (button_status[12] >> 7) & 0x80;
+		status[12] |= temp;
+		temp = (button_status[8] >> 8) & 0x40;
+		status[12] |= temp;
+		temp = (button_status[4] >> 9) & 0x20;
+		status[12] |= temp;
+		temp = (button_status[0] >> 10) & 0x10;
+		status[12] |= temp;
+		temp = (button_status[28] >> 11) & 0x08;
+		status[12] |= temp;
+		temp = (button_status[24] >> 12) & 0x04;
+		status[12] |= temp;
+		temp = (button_status[20] >> 13) & 0x02;
+		status[12] |= temp;
+		temp = (button_status[16] >> 14) & 0x01;
+		status[12] |= temp;
+		
+		// assemble encoders
+		status[13] = encoder_counter[0];
+		status[14] = encoder_counter[1];
+		status[15] = encoder_counter[2];
+		
+		*/ 
+		
+		status_ready = 1;
+		/*
+		if (spi_state == SPI_STATE_IDLE) {
+			SPDR = SPI_DATA_READY;
+		}
+		*/
+	}
+	sei();
+	
 	// debug ISR execution time
 	// low(PORTB,PB2);
 }
@@ -188,6 +278,7 @@ ISR(TIMER0_COMPA_vect) {
  * \addtogroup buttons
  * \{
  */
+/*
 uint8_t get_button_event( uint8_t p ) {
 	
 	// check for long press
@@ -208,6 +299,7 @@ uint8_t get_button_event( uint8_t p ) {
 	
 	return EVENT_NOTHING;
 }
+*/
 /** \} */
 
 /**

@@ -86,9 +86,11 @@ extern volatile uint16_t button_status[32];
   Q U E R Y   F U N C T I O N   F O R   T H E   B U T T O N S 
 ==============================================================*/
 
-#define EVENT_NOTHING		0x00	/**< Return value for the query function. */
-#define EVENT_LONG_PRESS	0x01	/**< Return value for the query function. */
-#define EVENT_SHORT_PRESS	0x02	/**< Return value for the query function. */
+
+// #define EVENT_NOTHING		0x00	/**< Return value for the query function. */
+// #define EVENT_LONG_PRESS	0x01	/**< Return value for the query function. */
+// #define EVENT_SHORT_PRESS	0x02	/**< Return value for the query function. */
+
 
 /**
  * Function that queries the events. If an event is triggered it returns the event, and clears 
@@ -169,6 +171,9 @@ int8_t get_encoder_value( uint8_t p );
 /*==============================================================
   C O M M O N   F U N C T I O N S
 ==============================================================*/
+
+extern volatile uint8_t status[16];
+extern volatile uint8_t status_ready;
 
 /**
  * Function that initializes the registers for the debounce algorithm.
