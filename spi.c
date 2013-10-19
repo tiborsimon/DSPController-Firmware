@@ -64,7 +64,6 @@ void spi_add_to_buffer(uint8_t id, uint8_t event) {
 
 void spi_add_down(uint8_t id) {
 	cli();
-	
 	uint8_t temp = EVENT_DOWN;
 	
 	switch (id) {
@@ -105,13 +104,11 @@ void spi_add_down(uint8_t id) {
 	
 	spi_transmit_buffer[spi_pointer++] = temp;
 	SPDR = spi_pointer;
-	
 	sei();
 }
 
 void spi_add_up(uint8_t id) {
 	cli();
-	
 	uint8_t temp = EVENT_UP;
 	
 	switch (id) {
@@ -152,19 +149,11 @@ void spi_add_up(uint8_t id) {
 	
 	spi_transmit_buffer[spi_pointer++] = temp;
 	SPDR = spi_pointer;
-	
 	sei();
 }
 
 void spi_add_short_press(uint8_t id) {
 	cli();
-	/*
-	if ((id == 12) | (id == 8) | (id == 4) | (id == 0) | (id == 28) | (id == 24) | (id == 20) | (id == 16)) {
-		sei();
-		return;
-	}
-	*/
-	
 	uint8_t temp = EVENT_SHORT;
 	
 	switch (id) {
@@ -205,19 +194,11 @@ void spi_add_short_press(uint8_t id) {
 	
 	spi_transmit_buffer[spi_pointer++] = temp;
 	SPDR = spi_pointer;
-	
 	sei();
 }
 
 void spi_add_long_press(uint8_t id) {
 	cli();
-	/*
-	if ((id == 12) | (id == 8) | (id == 4) | (id == 0) | (id == 28) | (id == 24) | (id == 20) | (id == 16)) {
-		sei();
-		return;
-	}
-	*/
-	
 	uint8_t temp = EVENT_LONG;
 	
 	switch (id) {
@@ -258,7 +239,26 @@ void spi_add_long_press(uint8_t id) {
 	
 	spi_transmit_buffer[spi_pointer++] = temp;
 	SPDR = spi_pointer;
+	sei();
+}
+
+void spi_add_encoder(uint8_t id) {
+	cli();
+	uint8_t temp = 0;
 	
+	if (id == 0) {
+		temp = 13 | (encoder_counter[0]<<4);
+		encoder_counter[0] = 0;
+	} else if (id == 2) {
+		temp = 14 | (encoder_counter[1]<<4);
+		encoder_counter[1] = 0;
+	} else if (id == 4) {
+		temp = 15 | (encoder_counter[2]<<4);
+		encoder_counter[2] = 0;
+	}
+	
+	spi_transmit_buffer[spi_pointer++] = temp;
+	SPDR = spi_pointer;
 	sei();
 }
 

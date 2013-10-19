@@ -167,6 +167,7 @@ int main(void) {
 			
 		} */
 		
+		/*
 		// get encoders values
 		for (i=0;i<3;i++) {
 			
@@ -210,6 +211,7 @@ int main(void) {
 				
 			}
 		}
+		*/
 		
 		/*
 		sprintf(s,"Dori: %d",i);

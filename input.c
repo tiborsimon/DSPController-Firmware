@@ -198,7 +198,7 @@ ISR(TIMER0_COMPA_vect) {
 			if ( (encoder_status[i] & (E_ACTUAL_MASK | E_PREVIOUS_MASK) ) == 0x40 ) {
 				
 				something_happened = 1;
-				
+								
 				if ((encoder_status[i+1] & E_ACTUAL_MASK) == 0) {
 					// turn left
 					encoder_counter[i>>1]++;
@@ -206,6 +206,10 @@ ISR(TIMER0_COMPA_vect) {
 					// turn right
 					encoder_counter[i>>1]--;
 				}
+				
+				/////////////////////////////////////////////
+				spi_add_encoder(i);
+				/////////////////////////////////////////////
 				
 			}
 		}

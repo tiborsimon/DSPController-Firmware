@@ -33,6 +33,7 @@ void spi_add_down(uint8_t id);
 void spi_add_up(uint8_t id);
 void spi_add_short_press(uint8_t id);
 void spi_add_long_press(uint8_t id);
+void spi_add_encoder(uint8_t id);
 
 void spi_init();
 // void spi_load_transmit_buffer();
