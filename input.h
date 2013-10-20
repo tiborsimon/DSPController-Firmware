@@ -172,9 +172,6 @@ int8_t get_encoder_value( uint8_t p );
   C O M M O N   F U N C T I O N S
 ==============================================================*/
 
-extern volatile uint8_t status[16];
-extern volatile uint8_t status_ready;
-
 /**
  * Function that initializes the registers for the debounce algorithm.
  */

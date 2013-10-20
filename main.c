@@ -25,9 +25,6 @@ volatile uint8_t encoder_debounce[6];
 volatile int8_t encoder_counter[3];
 volatile int8_t encoder_status[6];
 
-volatile uint8_t status[16];
-volatile uint8_t status_ready;
-
 // SPI VARIABLES
 volatile uint8_t spi_state;
 volatile uint8_t spi_pointer;

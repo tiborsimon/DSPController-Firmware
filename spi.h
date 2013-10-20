@@ -1,9 +1,12 @@
-/*
- * spi.h
+/**
+ * \addtogroup comm
+ * \{
+ * \file
+ * \author Tibor Simon <tiborsimon@tibor-simon.com>
+ * \version 1.0
  *
- * Created: 10/15/2013 4:58:22 PM
- *  Author: Tibor
- */ 
+ * \ref license
+ */
 
 
 #ifndef SPI_H_
@@ -36,7 +39,6 @@ void spi_add_long_press(uint8_t id);
 void spi_add_encoder(uint8_t id);
 
 void spi_init();
-// void spi_load_transmit_buffer();
 
 
 

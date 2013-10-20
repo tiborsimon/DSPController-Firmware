@@ -45,6 +45,9 @@
  * \author  Tibor Simon <tiborsimon@tibor-simon.com>
  * \version 1.0
  *
+ *\defgroup comm Communication
+ *\brief The description of the communication interface that connects the DSP with the DSP Controller
+ *
  * \defgroup logger USART Logger
  * \ingroup debug
  * \brief A simple lightweight console debug tool that redirects standard io stream to the USART hardware.

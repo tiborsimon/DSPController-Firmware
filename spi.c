@@ -22,46 +22,6 @@ void spi_init() {
 	spi_state = SPI_STATE_IDLE;
 }
 
-/*
-void spi_load_transmit_buffer() {
-	uint8_t i=31;
-	cli();
-	do {
-		uint8_t event = get_button_event(i);
-		if (event != EVENT_NOTHING) {
-			SPDR = i;
-		} else {
-			SPDR = 99;
-		}
-	} while (i--);
-	sei();
-}
-*/
-
-/*
-void spi_add_to_buffer(uint8_t id, uint8_t event) {
-	cli();
-	uint8_t temp;
-	uint8_t type;
-	
-	if ((id == 12) | (id == 8) | (id == 4) | (id == 0) | (id == 28) | (id == 24) | (id == 20) | (id == 16)) {
-		type = EVENT_TYPE_SWITCH;
-		if (event == SHORT_EVENT) {
-			sei();
-			return;
-		}
-	} else {
-		type = EVENT_TYPE_BUTTON;
-	}
-	
-	temp = id | type | event;
-	spi_transmit_buffer[spi_pointer++] = temp;
-	SPDR = spi_pointer;
-	
-	sei();
-}
-*/
-
 void spi_add_down(uint8_t id) {
 	cli();
 	uint8_t temp = EVENT_DOWN;
@@ -262,20 +222,6 @@ void spi_add_encoder(uint8_t id) {
 	sei();
 }
 
-/*
-void spi_switch_release(uint8_t id) {
-	cli();
-	
-	if ((id == 12) | (id == 8) | (id == 4) | (id == 0) | (id == 28) | (id == 24) | (id == 20) | (id == 16)) {
-		
-		spi_transmit_buffer[spi_pointer++] = id | EVENT_TYPE_SWITCH | SHORT_EVENT;
-		SPDR = spi_pointer;
-	}
-	
-	sei();
-}
-*/
-
 ISR(SPI_STC_vect) {
 	
 	if (spi_state == SPI_STATE_IDLE) {
@@ -296,21 +242,5 @@ ISR(SPI_STC_vect) {
 		}
 		SPDR = spi_transmit_buffer[spi_pointer];
 	}
-	
-	/*
-	if (SPDR == SPI_GET_SIMPLE) {
-		if (status_ready) {
-			if (--spi_pointer == 0) {
-				status_ready = 0;
-			}
-			SPDR = spi_transmit_buffer[spi_pointer];
-		} else {
-			// SPDR = 100;
-		}
-	} else {
-		// SPDR = 0;
-	}
-	*/
-	
 	
 }
