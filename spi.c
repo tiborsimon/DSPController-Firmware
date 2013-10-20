@@ -20,6 +20,134 @@ void spi_init() {
 	SPDR = 0x00;
 	
 	spi_state = SPI_STATE_IDLE;
+	spi_flag = SPI_FLAG_NONE;
+}
+
+ISR(SPI_STC_vect) {
+	
+	//===================================================================================
+	//  S P I   I D D L E   S T A T E 
+	//===================================================================================
+	if (spi_state == SPI_STATE_IDLE) {
+		
+		// Just asking for the events
+		if (SPDR == SPI_GET_SIMPLE) {
+			
+			if (spi_transmit_pointer > 1) {
+				spi_state = SPI_STATE_TRANSMIT_SIMPLE;
+				SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+			} else if (spi_transmit_pointer == 1) {
+				SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+			} else {
+				SPDR = spi_transmit_pointer;
+			}
+		
+		// Get events while sending LED data	
+		} else if (SPDR == SPI_GET_WITH_LED) {
+			
+			if (spi_transmit_pointer > 0) {
+				SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+			} else {
+				SPDR = spi_transmit_pointer;
+			}
+			
+			spi_state = SPI_STATE_TRANSMIT_LED;
+			spi_receive_pointer = 2;
+			
+		// Get events while sending LCD data
+		} else if (SPDR == SPI_GET_WITH_LCD_TOP) {
+			
+			if (spi_transmit_pointer > 0) {
+				SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+			} else {
+				SPDR = spi_transmit_pointer;
+			}
+			
+			spi_state = SPI_STATE_TRANSMIT_LCD_TOP;
+			spi_receive_pointer = 16;
+			
+		// Get events while sending LCD data
+		} else if (SPDR == SPI_GET_WITH_LCD_BOTTOM) {
+		
+			if (spi_transmit_pointer > 0) {
+				SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+				} else {
+				SPDR = spi_transmit_pointer;
+			}
+			
+			spi_state = SPI_STATE_TRANSMIT_LCD_BOTTOM;
+			spi_receive_pointer = 16;
+			
+		}
+	
+	//===================================================================================
+	//  S P I   S I M P L E   T R A N S M I T   S T A T E
+	//===================================================================================
+	} else if (spi_state == SPI_STATE_TRANSMIT_SIMPLE) {
+		
+		if (--spi_transmit_pointer == 0) {
+			SPDR = 0;
+			spi_state = SPI_STATE_IDLE;
+		}
+		
+		SPDR = spi_transmit_buffer[spi_transmit_pointer];
+		
+	//===================================================================================
+	//  S P I   L E D   T R A N S M I T   S T A T E
+	//===================================================================================
+	} else if (spi_state == SPI_STATE_TRANSMIT_LED) {
+		
+		if (--spi_receive_pointer == 0) {
+			spi_flag = SPI_FLAG_LED;
+			spi_state = SPI_STATE_IDLE;
+		}
+		
+		spi_receive_buffer[spi_receive_pointer] = SPDR;
+		
+		if (spi_transmit_pointer > 0) {
+			SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+		} else {
+			SPDR = spi_transmit_pointer;
+		}
+	
+	//===================================================================================
+	//  S P I   L C D   T O P   T R A N S M I T   S T A T E
+	//===================================================================================
+	} else if (spi_state == SPI_STATE_TRANSMIT_LCD_TOP) {
+	
+		if (--spi_receive_pointer == 0) {
+			spi_flag = SPI_FLAG_LCD_TOP;
+			spi_state = SPI_STATE_IDLE;
+		}
+		
+		spi_receive_buffer[spi_receive_pointer] = SPDR;
+		
+		if (spi_transmit_pointer > 0) {
+			SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+		} else {
+			SPDR = spi_transmit_pointer;
+		}
+		
+	//===================================================================================
+	//  S P I   L C D   B O T T O M   T R A N S M I T   S T A T E
+	//===================================================================================
+	} else if (spi_state == SPI_STATE_TRANSMIT_LCD_BOTTOM) {
+	
+		if (--spi_receive_pointer == 0) {
+			spi_flag = SPI_FLAG_LCD_BOTTOM;
+			spi_state = SPI_STATE_IDLE;
+		}
+	
+		spi_receive_buffer[spi_receive_pointer] = SPDR;
+	
+		if (spi_transmit_pointer > 0) {
+			SPDR = spi_transmit_buffer[--spi_transmit_pointer];
+			} else {
+			SPDR = spi_transmit_pointer;
+		}
+		
+	} // end of spi_state checkings
+	
 }
 
 void spi_add_down(uint8_t id) {
@@ -62,8 +190,8 @@ void spi_add_down(uint8_t id) {
 		default:	temp = 0;
 	}
 	
-	spi_transmit_buffer[spi_pointer++] = temp;
-	SPDR = spi_pointer;
+	spi_transmit_buffer[spi_transmit_pointer++] = temp;
+	SPDR = spi_transmit_pointer;
 	sei();
 }
 
@@ -107,8 +235,8 @@ void spi_add_up(uint8_t id) {
 		default:	temp = 0;
 	}
 	
-	spi_transmit_buffer[spi_pointer++] = temp;
-	SPDR = spi_pointer;
+	spi_transmit_buffer[spi_transmit_pointer++] = temp;
+	SPDR = spi_transmit_pointer;
 	sei();
 }
 
@@ -152,8 +280,8 @@ void spi_add_short_press(uint8_t id) {
 		default:	temp = 0;
 	}
 	
-	spi_transmit_buffer[spi_pointer++] = temp;
-	SPDR = spi_pointer;
+	spi_transmit_buffer[spi_transmit_pointer++] = temp;
+	SPDR = spi_transmit_pointer;
 	sei();
 }
 
@@ -197,8 +325,8 @@ void spi_add_long_press(uint8_t id) {
 		default:	temp = 0;
 	}
 	
-	spi_transmit_buffer[spi_pointer++] = temp;
-	SPDR = spi_pointer;
+	spi_transmit_buffer[spi_transmit_pointer++] = temp;
+	SPDR = spi_transmit_pointer;
 	sei();
 }
 
@@ -217,30 +345,7 @@ void spi_add_encoder(uint8_t id) {
 		encoder_counter[2] = 0;
 	}
 	
-	spi_transmit_buffer[spi_pointer++] = temp;
-	SPDR = spi_pointer;
+	spi_transmit_buffer[spi_transmit_pointer++] = temp;
+	SPDR = spi_transmit_pointer;
 	sei();
-}
-
-ISR(SPI_STC_vect) {
-	
-	if (spi_state == SPI_STATE_IDLE) {
-		if (SPDR == SPI_GET_SIMPLE) {
-			if (spi_pointer > 1) {
-				spi_state = SPI_STATE_TRANSMIT;
-				SPDR = spi_transmit_buffer[--spi_pointer];
-			} else if (spi_pointer == 1) {
-				SPDR = spi_transmit_buffer[--spi_pointer];
-			} else {
-				SPDR = spi_pointer;
-			}
-		}
-	} else if (spi_state == SPI_STATE_TRANSMIT) {
-		if (--spi_pointer == 0) {
-			SPDR = 0;
-			spi_state = SPI_STATE_IDLE;
-		}
-		SPDR = spi_transmit_buffer[spi_pointer];
-	}
-	
 }

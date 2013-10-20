@@ -46,7 +46,7 @@
  * \version 1.0
  *
  *\defgroup comm Communication
- *\brief The description of the communication interface that connects the DSP with the DSP Controller
+ *\brief The communication interface that connects the DSP to the DSP Controller
  *
  * \defgroup logger USART Logger
  * \ingroup debug

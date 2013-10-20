@@ -27,16 +27,11 @@ volatile int8_t encoder_status[6];
 
 // SPI VARIABLES
 volatile uint8_t spi_state;
-volatile uint8_t spi_pointer;
+volatile uint8_t spi_transmit_pointer;
 volatile uint8_t spi_transmit_buffer[16];
-
-
-uint8_t reverseByte( uint8_t x ) {
-	x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);
-	x = ((x >> 2) & 0x33) | ((x << 2) & 0xcc);
-	x = ((x >> 4) & 0x0f) | ((x << 4) & 0xf0);
-	return x;
-}
+volatile uint8_t spi_receive_pointer;
+volatile uint8_t	spi_receive_buffer[36];
+volatile uint8_t spi_flag;
 
 void io_init( void ) {
 	// shift registers
@@ -86,6 +81,7 @@ void timer_init() {
 	// TCCR0B = (1<<CS02) | (0<<CS01) | (1<<CS00); // div 1024
 }
 
+/*
 void print_prev(uint8_t p, uint8_t prev) {
 	char s[16];
 	
@@ -102,6 +98,7 @@ void print_prev(uint8_t p, uint8_t prev) {
 	}
 	
 }
+*/
 
 
 
@@ -110,9 +107,6 @@ int main(void) {
 	char s[16];
 	
 	int i = 0;
-	
-	// uint8_t p_prev = 0;
-	// uint8_t press_prev = 0;
 	
 
 	io_init();
@@ -134,99 +128,38 @@ int main(void) {
 	
 	while(1) {
 		
-		/*
-		// loop through the buttons and ask for events
-		for (i=0;i<32;i++) {
-			
-			uint8_t button_event = get_button_event(i);
-			
-			if ( button_event == EVENT_SHORT_PRESS ) {
-				
-				sprintf(s,"%d: SHORT       ",i);
-				lcd_home();
-				lcd_writeString(s);
-				
-				print_prev(p_prev,press_prev);
-				p_prev = i;
-				press_prev = 2;
-			}
-			
-			if ( button_event == EVENT_LONG_PRESS ) {
-				
-				sprintf(s,"%d: LONG       ",i);
-				lcd_home();
-				lcd_writeString(s);
-				
-				print_prev(p_prev,press_prev);
-				p_prev = i;
-				press_prev = 1;
-			}
-			
-		} */
-		
-		/*
-		// get encoders values
-		for (i=0;i<3;i++) {
-			
-			int8_t encoder_value = get_encoder_value(i);
-			
-			if (encoder_value > 0) {
-				
-				if (i==0) {
-					_led_l = _led_l<<1 | 0x01;
-					refreshLeds();
-				}
-				
-				if (i==2) {
-					_led_r = _led_r<<1 | 0x01;
-					refreshLeds();
-				}
-				
-				if (i==1) {
-					_led_r = _led_r<<1 | 0x01;
-					_led_l = _led_l<<1 | 0x01;
-					refreshLeds();
-				}
-				
-			} else if (encoder_value < 0) {
-				
-				if (i==0) {
-					_led_l = _led_l>>1 | 0x01;
-					refreshLeds();
-				}
-				
-				if (i==2) {
-					_led_r = _led_r>>1 | 0x01;
-					refreshLeds();
-				}
-				
-				if (i==1) {
-					_led_r = _led_r>>1 | 0x01;
-					_led_l = _led_l>>1 | 0x01;
-					refreshLeds();
-				}
-				
-			}
+		if (spi_flag == SPI_FLAG_LED) {
+			cli();
+			setLed(spi_receive_buffer[1],spi_receive_buffer[0]);
+			spi_flag = SPI_FLAG_NONE;
+			sei();
+			refreshLeds();
 		}
-		*/
 		
-		/*
-		sprintf(s,"Dori: %d",i);
-		lcd_home();
+		if (spi_flag == SPI_FLAG_LCD_TOP) {
+			cli();
+			i = 15;
+			do {
+				s[15-i] = spi_receive_buffer[i];
+			} while (i--);
+			spi_flag = SPI_FLAG_NONE;
+			sei();
+			lcd_home();
+			lcd_writeString(s);
+		}
 		
-		if (i%2 == 0) {
+		if (spi_flag == SPI_FLAG_LCD_BOTTOM) {
+			cli();
+			i = 15;
+			do {
+				s[15-i] = spi_receive_buffer[i];
+			} while (i--);
+			spi_flag = SPI_FLAG_NONE;
+			sei();
 			lcd_newLine();
+			lcd_writeString(s);
 		}
 		
-		lcd_writeString(s);
-		
-		i++;
-		
-		_led_r++;
-		_led_l--;
-		
-		_delay_ms(300);
-		*/
 	}
 	
 	return 0;
