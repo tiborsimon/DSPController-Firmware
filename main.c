@@ -23,14 +23,26 @@ volatile uint16_t button_status[32];
 
 volatile uint8_t encoder_debounce[6];
 volatile int8_t encoder_counter[3];
-volatile int8_t encoder_status[6];
+volatile uint8_t encoder_status[6];
+
+volatile uint8_t dip_status;
 
 // SPI VARIABLES
 volatile uint8_t spi_state;
-volatile uint8_t spi_transmit_pointer;
-volatile uint8_t spi_transmit_buffer[16];
+
+volatile uint8_t spi_transmit_A_not_B;
+volatile uint8_t spi_transmit_pointer_A;
+volatile uint8_t spi_transmit_pointer_B;
+volatile uint8_t spi_transmit_buffer_A[40];
+volatile uint8_t spi_transmit_buffer_B[40];
+
+volatile uint8_t* spi_transmit_pointer_READ;
+volatile uint8_t* spi_transmit_buffer_READ;
+volatile uint8_t* spi_transmit_pointer_WRITE;
+volatile uint8_t* spi_transmit_buffer_WRITE;
+
 volatile uint8_t spi_receive_pointer;
-volatile uint8_t	spi_receive_buffer[36];
+volatile uint8_t spi_receive_buffer[36];
 volatile uint8_t spi_flag;
 
 void io_init( void ) {
@@ -107,7 +119,6 @@ int main(void) {
 	char s[16];
 	
 	int i = 0;
-	
 
 	io_init();
 	input_init();

@@ -55,7 +55,7 @@
 	#define SS_DDR 			DDRB			/**< Data Direction Register for SS. */
 	#define SS_PORT			PORTB			/**< Port Register for SS. */
 	#define SS_PIN			PINB			/**< Pin Register for SS. */
-	#define SS_NAME 		PPB2			/**< Pin name for SS. */
+	#define SS_NAME 		PB2				/**< Pin name for SS. */
 	
 	#define SCK_DDR 		DDRB			/**< Data Direction Register for SCK. */
 	#define SCK_PORT		PORTB			/**< Port Register for SCK. */

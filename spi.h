@@ -16,12 +16,14 @@
 #define SPI_GET_WITH_LED				0x11
 #define SPI_GET_WITH_LCD_TOP			0x12			
 #define SPI_GET_WITH_LCD_BOTTOM			0x13
+#define SPI_GET_DIP_STATUS				0x14
 
 #define SPI_STATE_IDLE					0
 #define SPI_STATE_TRANSMIT_SIMPLE		1
 #define SPI_STATE_TRANSMIT_LED			2
 #define SPI_STATE_TRANSMIT_LCD_TOP		3
 #define SPI_STATE_TRANSMIT_LCD_BOTTOM	4
+#define SPI_STATE_TRANSMIT_DIP_STATUS	5
 
 #define SPI_FLAG_NONE					0
 #define SPI_FLAG_LED					1
@@ -39,8 +41,17 @@
 #define EVENT_TYPE_DIP					0x30
 
 extern volatile uint8_t spi_state;
-extern volatile uint8_t spi_transmit_pointer;
-extern volatile uint8_t spi_transmit_buffer[16];
+extern volatile uint8_t spi_transmit_A_not_B;
+extern volatile uint8_t spi_transmit_pointer_A;
+extern volatile uint8_t spi_transmit_pointer_B;
+extern volatile uint8_t spi_transmit_buffer_A[40];
+extern volatile uint8_t spi_transmit_buffer_B[40];
+
+extern volatile uint8_t* spi_transmit_pointer_READ;
+extern volatile uint8_t* spi_transmit_buffer_READ;
+extern volatile uint8_t* spi_transmit_pointer_WRITE;
+extern volatile uint8_t* spi_transmit_buffer_WRITE;
+
 extern volatile uint8_t spi_receive_pointer;
 extern volatile uint8_t	spi_receive_buffer[36];
 extern volatile uint8_t spi_flag;
@@ -50,6 +61,8 @@ void spi_add_up(uint8_t id);
 void spi_add_short_press(uint8_t id);
 void spi_add_long_press(uint8_t id);
 void spi_add_encoder(uint8_t id);
+
+void spi_change_transmit_buffers();
 
 void spi_init();
 

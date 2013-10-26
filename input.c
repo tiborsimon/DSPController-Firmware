@@ -31,6 +31,9 @@ void input_init() {
 	encoder_counter[0] = 0;
 	encoder_counter[1] = 0;
 	encoder_counter[2] = 0;
+	
+	// zero out dip_status
+	dip_status = 0;
 }
 
 /**
@@ -42,6 +45,8 @@ ISR(TIMER0_COMPA_vect) {
 	uint8_t p = 0;
 	
 	static uint8_t blocker = 0;
+	
+	uint8_t dip_update = 0;
 	
 	sei();
 	
@@ -100,6 +105,9 @@ ISR(TIMER0_COMPA_vect) {
 					
 					// clear counter & clear lock
 					button_status[p] &= COUNTER_CLEAR & LOCK_CLEAR;
+					
+					dip_update = 1;
+					
 				}
 				continue;
 			}
@@ -130,6 +138,8 @@ ISR(TIMER0_COMPA_vect) {
 						// threshold reached = long press :: lock
 						// button_status[p] |= LONG_SET | LOCK_SET;
 						button_status[p] |= LOCK_SET;
+						
+						dip_update = 1;
 						
 						/////////////////////////////////////////////////
 						spi_add_long_press(p);
@@ -201,6 +211,21 @@ ISR(TIMER0_COMPA_vect) {
 		}
 		
 	} while (i--);
+	
+	// if something happened with the inputs, refresh the dip switches status
+	if (dip_update) {
+		cli();
+		dip_status = 0;
+		dip_status |= (button_status[16] & ACTUAL_MASK) >> 7; 
+		dip_status |= (button_status[20] & ACTUAL_MASK) >> 8;
+		dip_status |= (button_status[24] & ACTUAL_MASK) >> 9;
+		dip_status |= (button_status[28] & ACTUAL_MASK) >> 10;
+		dip_status |= (button_status[0] & ACTUAL_MASK)  >> 11;
+		dip_status |= (button_status[4] & ACTUAL_MASK)  >> 12;
+		dip_status |= (button_status[8] & ACTUAL_MASK)  >> 13;
+		dip_status |= (button_status[12] & ACTUAL_MASK) >> 14;
+		sei();
+	}
 	
 	// debug ISR execution time
 	// low(PORTB,PB2);

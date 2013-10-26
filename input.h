@@ -141,16 +141,16 @@ uint8_t get_button_event( uint8_t p );
 #define E_MASTER_SET		E_MASTER_MASK			/**< Variable that sets the \a master \a bit. For  the more readable code. [it needs OR logic] */
 #define E_MASTER_CLEAR		0xdf					/**< Variable that clears the \a master \a bit. [it needs AND logic] */
 
-extern volatile uint8_t encoder_debounce[6];  /**< Debounce register that debounces the encoders raw signals. */
-extern volatile int8_t encoder_counter[3];  /**< Counter register for each encoders. It is a signed register, it uses two's complement.  */
+extern volatile uint8_t encoder_debounce[6];		/**< Debounce register that debounces the encoders raw signals. */
+extern volatile int8_t encoder_counter[3];			/**< Counter register for each encoders. It is a signed register, it uses two's complement.  */
 
 /**
  * Encoder's status
  * 7              | 6            | 5      | 4 : 0
  * :------------- | :----------- | :----- | :------
- * previous state | actual state | master | counter
+ * previous state | actual state | master | reserved
  */
-extern volatile int8_t encoder_status[6];
+extern volatile uint8_t encoder_status[6];
 
 /*==============================================================
   Q U E R Y   F U N C T I O N   F O R   T H E   E N C O D E R S 
@@ -163,6 +163,13 @@ extern volatile int8_t encoder_status[6];
  * \returns The triggered event.
  */
 int8_t get_encoder_value( uint8_t p );
+
+
+/*==============================================================
+  D I P   S T A T U S  
+==============================================================*/
+
+extern volatile uint8_t dip_status;  /**< Status of the DIP switches. 8 bit, 8 switches. */
 
 /** \} */
 
