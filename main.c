@@ -151,7 +151,7 @@ int main(void) {
 			cli();
 			i = 15;
 			do {
-				s[15-i] = spi_receive_buffer[i];
+				s[i] = spi_receive_buffer[i];
 			} while (i--);
 			spi_flag = SPI_FLAG_NONE;
 			sei();
@@ -163,7 +163,7 @@ int main(void) {
 			cli();
 			i = 15;
 			do {
-				s[15-i] = spi_receive_buffer[i];
+				s[i] = spi_receive_buffer[i];
 			} while (i--);
 			spi_flag = SPI_FLAG_NONE;
 			sei();
