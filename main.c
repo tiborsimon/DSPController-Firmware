@@ -7,45 +7,206 @@
 
 
 #include "includes.h"
+#include "main.h"
 
 
-/*================================================================
-  D E C L A R E   G L O B A L   V A R I A B L E S
-================================================================*/
 
-// LED BARS
-volatile uint8_t _led_l = 0;
-volatile uint8_t _led_r = 0;
+int main(void) {
+	
+	char s[16];
+	int i = 0;
 
-// INPUT LIBRARY VARIABLES
-volatile uint8_t debounce[32];
-volatile uint16_t button_status[32];
+	io_init();
+	input_init();
+	lcd_init();
+	timer_init();
+	usart_logger_init();
+	spi_init();
+	
+	/*
+	welcome_screen(s);
+	
+	while(!(SPSR & (1<<SPIF)));
+	
+	
+	lcd_home();
+	sprintf(s,"     Ready!     ");
+	lcd_writeString(s);
+	
+	lcd_newLine();
+	sprintf(s,"                ");
+	lcd_writeString(s);
+	
+	lcd_clear();
+	SPDR = 0x80;
+	
+	*/
+	
+	lcd_home();
+	sprintf(s," DSP Controller ");
+	lcd_writeString(s);
+	lcd_newLine();
+	sprintf(s,"      v1.1      ");
+	lcd_writeString(s);
+	
+	sei();
+	
+	while(1) {
+		
+		if (spi_flag == SPI_FLAG_LED) {
+			cli();
+			setLed(spi_receive_buffer[1],spi_receive_buffer[0]);
+			spi_flag = SPI_FLAG_NONE;
+			sei();
+			refreshLeds();
+		}
+		
+		if (spi_flag == SPI_FLAG_LCD_TOP) {
+			cli();
+			i = 15;
+			do {
+				s[i] = spi_receive_buffer[i];
+			} while (i--);
+			spi_flag = SPI_FLAG_NONE;
+			sei();
+			lcd_home();
+			lcd_writeString(s);
+		}
+		
+		if (spi_flag == SPI_FLAG_LCD_BOTTOM) {
+			cli();
+			i = 15;
+			do {
+				s[i] = spi_receive_buffer[i];
+			} while (i--);
+			spi_flag = SPI_FLAG_NONE;
+			sei();
+			lcd_newLine();
+			lcd_writeString(s);
+		}
+	}
+	return 0;
+}
 
-volatile uint8_t encoder_debounce[6];
-volatile int8_t encoder_counter[3];
-volatile uint8_t encoder_status[6];
 
-volatile uint8_t dip_status;
+#define LED_ANIM_DUR	5
+#define LED_ANIM_MOD	2
 
-// SPI VARIABLES
-volatile uint8_t spi_state;
+void led_up() {
+	setLed(0x01,0x01);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+3*LED_ANIM_MOD);
+	
+	setLed(0x03,0x03);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
+	
+	setLed(0x07,0x07);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
+	
+	setLed(0x0f,0x0f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x0f,0x0f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x0f,0x0f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x1f,0x1f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x3f,0x3f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR);
+	
+	setLed(0x7f,0x7f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR);
+	
+	setLed(0xff,0xff);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR);
+}
 
-volatile uint8_t spi_transmit_A_not_B;
-volatile uint8_t spi_transmit_pointer_A;
-volatile uint8_t spi_transmit_pointer_B;
-volatile uint8_t spi_transmit_buffer_A[40];
-volatile uint8_t spi_transmit_buffer_B[40];
+void led_down() {
+	setLed(0xff,0xff);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR);
+	
+	setLed(0x7f,0x7f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR);
+	
+	setLed(0x3f,0x3f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR);
+	
+	setLed(0x1f,0x1f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x0f,0x0f);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x07,0x07);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
+	
+	setLed(0x03,0x03);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
+	
+	setLed(0x01,0x01);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
+	
+	setLed(0x00,0x00);
+	refreshLeds();
+	_delay_ms(LED_ANIM_DUR+3*LED_ANIM_MOD);
+}
 
-volatile uint8_t* spi_transmit_pointer_READ;
-volatile uint8_t* spi_transmit_buffer_READ;
-volatile uint8_t* spi_transmit_pointer_WRITE;
-volatile uint8_t* spi_transmit_buffer_WRITE;
+void welcome_screen(char* s) {
+	
+	lcd_home();
+	sprintf(s," DSP Controller ");
+	lcd_writeString(s);
+	lcd_newLine();
+	sprintf(s,"      v1.1      ");
+	lcd_writeString(s);
+	
+	_delay_ms(1500);
+	
+	lcd_newLine();
+	sprintf(s,"  Simon  Tibor  ");
+	lcd_writeString(s);
+	
+	_delay_ms(700);
+	
+	led_up();
+	led_down();
+	
+	_delay_ms(50);
+	
+	led_up();
+	led_down();
+	
+	lcd_home();
+	sprintf(s,"   Waiting for  ");
+	lcd_writeString(s);
+	lcd_newLine();
+	sprintf(s,"SPI connection..");
+	lcd_writeString(s);
+}
 
-volatile uint8_t spi_receive_pointer;
-volatile uint8_t spi_receive_buffer[36];
-volatile uint8_t spi_flag;
 
-void io_init( void ) {
+void io_init() {
 	// shift registers
 	setOutput(IO_CLK);
 	setOutput(OUT_LATCH);
@@ -111,67 +272,3 @@ void print_prev(uint8_t p, uint8_t prev) {
 	
 }
 */
-
-
-
-int main(void) {
-	
-	char s[16];
-	
-	int i = 0;
-
-	io_init();
-	input_init();
-	lcd_init();
-	timer_init();
-	usart_logger_init();
-	spi_init();
-	
-	sei();
-	
-	setLed(0x01,0x01);
-	
-	sprintf(s," DSP Controller");
-	lcd_writeString(s);
-	lcd_newLine();
-	sprintf(s,"    demo app");
-	lcd_writeString(s);
-	
-	while(1) {
-		
-		if (spi_flag == SPI_FLAG_LED) {
-			cli();
-			setLed(spi_receive_buffer[1],spi_receive_buffer[0]);
-			spi_flag = SPI_FLAG_NONE;
-			sei();
-			refreshLeds();
-		}
-		
-		if (spi_flag == SPI_FLAG_LCD_TOP) {
-			cli();
-			i = 15;
-			do {
-				s[i] = spi_receive_buffer[i];
-			} while (i--);
-			spi_flag = SPI_FLAG_NONE;
-			sei();
-			lcd_home();
-			lcd_writeString(s);
-		}
-		
-		if (spi_flag == SPI_FLAG_LCD_BOTTOM) {
-			cli();
-			i = 15;
-			do {
-				s[i] = spi_receive_buffer[i];
-			} while (i--);
-			spi_flag = SPI_FLAG_NONE;
-			sei();
-			lcd_newLine();
-			lcd_writeString(s);
-		}
-		
-	}
-	
-	return 0;
-}

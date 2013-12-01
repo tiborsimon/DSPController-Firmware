@@ -54,14 +54,27 @@
  * \author  Tibor Simon <tiborsimon@tibor-simon.com>
  * \version 1.0
  *
+ * This module allows the developer a convenient way to debug the code without a hardware debugger. It uses the 
+ * standard io stream provided by the C library and redirects it to the AVR USART hardware. 
+ *
+ * It can be compiled to the code on demand. You can turn it on, by defining the LOGGER_ON_ symbol. The comment macro will be transparent to the compiler
+ * if the module is turned off. 
+ *
  * #### Default USART configurations
  * USART Configuration | values
  * ------------------ | --------
- * baudrate           | 9600
+ * baudrate           | 57600
  * number of bits     | 8
  * parity             | NO
  * stop bits          | 1
- * Simple console logger.
+ * 
+ * To use this module, simply write your debug messages with the LOG() macro exactly the same way as you may use 
+ * the printf() function, and the message will be sent through the serial hardware. The macro ensures that the debug
+ * module stay transparent if you not use it, i.e. you comment out the LOGGER_ON_ symbol, the compiler won't compile
+ * it. It could be handy if you are working on a large project, where the flash storage is the bottleneck, or you
+ * do not need the final hardware to print diagnostic messages through it's serial port. You wouldn't need to delete 
+ * every single LOG() instruction, you only need to commnet out the LOGGER_ON_ symbol, and all debug messages will be 
+ * gone.
  *
  */
 

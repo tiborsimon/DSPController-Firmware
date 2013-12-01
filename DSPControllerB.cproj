@@ -150,6 +150,9 @@
     <Compile Include="input.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="main.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="output.c">
       <SubType>compile</SubType>
     </Compile>
