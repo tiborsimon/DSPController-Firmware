@@ -1,18 +1,40 @@
-/*! \mainpage
- *
+/** \mainpage
  * # DSP Controller
  * \author  Tibor Simon <tiborsimon@tibor-simon.com>
  * \version 1.1
+ *
+ * DSPController is an interface device that expands the capability of the Analog Devices ADSP-21364 EZ-KIT Lite SHARC
+ * evaluation board. The evaluation board's human interface is limited by default. It contains 4 buttons and 8 leds.
+ *
+ * The DSPController addresses this lack of functionality, and expands the evaluation board with
+ * - 16x2 LCD display
+ * - 2x8 led general purpose led bars
+ * - 3 encoders
+ * - 4 function buttons
+ * - 5 arrow buttons
+ * - a numeric pad, that can be used as 12 individual buttons
+ * - 8 dip switches
+ *
+ * The DSPController connects to the evaluation card via SPI. The two circuit are completely separated from each other.
+ * The separation is done by an Analog Devices ADUM isolator chip.
+ *
+ * This document contains the documentation of the DSPController firmware itself. It doesn't include the HOST software.
  * 
  */
 
-/*! 
+/** 
+ *
+ * \defgroup main Main
+ * \brief  Entry point and main control.
  *
  * \defgroup debug Debug tools
- * \brief  Tools for debugging the project.
+ * \brief  Tools for debugging the project. 
+ * 
+ * The module is included to the code in this documentation but it should be removed int the final release.
  *
  * \defgroup bsp Board Support Package
- * \brief Low level layer that hides the hardware from the software.
+ * \brief Low level layer that hides the hardware from the software. It implements a simple to use macro system, that
+ * is easy to expand.
  *
  * \defgroup interfaces Interfaces
  * \brief Interface modules.
@@ -23,15 +45,20 @@
  *
  * \defgroup buttons Buttons
  * \ingroup inputs
- * \brief All the buttons of the DSP controller driven by shift registers.
+ * \brief All the buttons of the DSP controller are driven by shift registers. These shift registers are asked periodically
+ * for new data. In every period new data runs through a debouncer algorithm that generates events, and these events are stored 
+ * in a buffer, from which the spi communication program reads them out and sends to the HOST system.
  *
  * \defgroup encoders Encoders
  * \ingroup inputs
- * \brief Encoders.
+ * \brief The operation of the encoders is very similar to the buttons. But instead of using shift registers, it's actual
+ * value are readed out directly with some IO pins of the AVR microcontroller. These values processed through the 
+ * debouncer algorithm, and than based on the result, the corresponding registers that counts the encoder's rotation
+ * are updated.
  *
  * \defgroup outputs Outputs
  * \ingroup interfaces 
- * \brief All of the output interface modules.
+ * \brief All of the output interface modules that drives the interface, including the LCD display and the LED bars.
  *
  * \defgroup lcd LCD Display
  * \ingroup outputs
@@ -47,6 +74,15 @@
  *
  *\defgroup comm Communication
  *\brief The communication interface that connects the DSP to the DSP Controller
+ *
+ *\defgroup spi SPI
+ *\ingroup comm
+ *\brief The main and only communication module to the HOST card.
+ *
+ * The SPI Module is taking care of the communication with the HOST card. The host card can access the DSPController
+ * and read out the events happened between two readouts, while sending LED or LCD data. The SPI module uses a double
+ * buffered transmit mechanism to maintain error free operation and prevent event losses. It uses a very efficient
+ * and fast, custom designed protocol over the SPI communication protocol.
  *
  * \defgroup logger USART Logger
  * \ingroup debug
@@ -78,7 +114,7 @@
  *
  */
 
-/*! \page license License
+/** \page license License
 
  ### GNU GENERAL PUBLIC LICENSE
 

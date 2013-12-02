@@ -1,9 +1,12 @@
-/*
- * shift.c
+/**
+ * \addtogroup outputs
+ * \{	
+ * \file
+ * \author Tibor Simon <tiborsimon@tibor-simon.com>
+ * \version 1.0
  *
- * Created: 10/8/2013 7:17:21 PM
- *  Author: Tibor
- */ 
+ * \ref license
+ */
 
 #include "shift.h"
 
@@ -26,3 +29,5 @@ void shiftOutLsbFirst(uint8_t data) {
 		s++;
 	} while (i--);
 }
+
+/** \} */

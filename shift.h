@@ -1,9 +1,12 @@
-/*
- * shift.h
+/**
+ * \addtogroup outputs
+ * \{	
+ * \file
+ * \author Tibor Simon <tiborsimon@tibor-simon.com>
+ * \version 1.0
  *
- * Created: 10/8/2013 7:17:05 PM
- *  Author: Tibor
- */ 
+ * \ref license
+ */
 
 
 #ifndef SHIFT_H_
@@ -11,9 +14,19 @@
 
 #include "includes.h"
 
+/**
+ * Shifts out a byte through the default output pin with the MSB bit first.
+ * \param[in] data The byte you want to shift out.
+ */
 void shiftOutMsbFirst(uint8_t data);
+
+/**
+ * Shifts out a byte through the default output pin with the LSB bit first.
+ * \param[in] data The byte you want to shift out.
+ */
 void shiftOutLsbFirst(uint8_t data);
 
 
 
 #endif /* SHIFT_H_ */
+/** \} */

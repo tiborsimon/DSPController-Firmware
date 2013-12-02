@@ -19,7 +19,7 @@
  * \{
  * The system that handles the buttons connected to the shift registers is very simple and reliable. It uses only two registers
  * for each 32 buttons: the debounce register and the status register. The algorithm runs every 1 ms. It was triggered by a timer
- * interrupt that kicks in every 0.5 ms, so a simple waiting code prevent the run every second interrupt.
+ * interrupt that kicks in every 0.5 ms, so a simple waiting code blocks it, and let run in every second interrupt.
  *
  * The status register contains the following bits:
  *  15             | 14           | 13          | 12         | 11        | 10 : 0

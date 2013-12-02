@@ -1,10 +1,13 @@
-/*
- * input.c
+/**
  * \addtogroup inputs
  * \{
- * Created: 10/10/2013 10:11:29 AM
- *  Author: Tibor
- */ 
+ * \file
+ * \author Tibor Simon <tiborsimon@tibor-simon.com>
+ * \version 1.0
+ *
+ * \ref license
+ *
+ */
 
 #include "input.h"
 
@@ -44,16 +47,19 @@ ISR(TIMER0_COMPA_vect) {
 	uint8_t i = 7;
 	uint8_t p = 0;
 	
+	// the buttons need to be processed every second tick, we use a simple blocking variable
 	static uint8_t blocker = 0;
 	
+	// if there is a change in one of the dip switches, that are processed the same way as 
+	// the other buttons, toggle this flag, and at the end of the algorithm all of the dip 
+	// switches will be refreshed
 	uint8_t dip_update = 0;
 	
+	// turn on interrupts because when an interrupts occurs, the AVR turns of the global 
+	// interrupt enable bit, and the SPI interrupt has higher priority, it needs to be enabled.
 	sei();
 	
-	// Toggle SS pin for debug ONLY
-	// high(PORTB,PB2);
-	// toggle(PINB,PB2);
-	
+	// run the button process algorithm every second tick
 	if (blocker++ >= 1) {
 		blocker = 0;
 	} else {
@@ -74,14 +80,14 @@ ISR(TIMER0_COMPA_vect) {
 			pulse(IO_CLK);
 		} while (i--);
 		
-		// adjust p pointer
+		// adjust p pointer, that addresses the debounce shift registers
 		p--;
 		
 		// run debounce algorithm
 		do {
 			if ((debounce[p] & DEBOUNCE_MASK) == 0) {
 				
-				// PREV = 1 ==> falling edge
+				// PREV=1 ==> falling edge
 				if ((button_status[p] & PREVIOUS_MASK) != 0) {
 					
 					/////////////////////////////////////////////////
@@ -95,8 +101,6 @@ ISR(TIMER0_COMPA_vect) {
 					if (((button_status[p] & COUNTER_MASK) < COUNTER_THRESHOLD) &
 						((button_status[p] & SHORT_MASK) == 0) &
 						((button_status[p] & LONG_MASK) == 0) ) {
-						// short press
-						// button_status[p] |= SHORT_SET;
 						
 						/////////////////////////////////////////////////
 						spi_add_short_press(p);
@@ -106,6 +110,7 @@ ISR(TIMER0_COMPA_vect) {
 					// clear counter & clear lock
 					button_status[p] &= COUNTER_CLEAR & LOCK_CLEAR;
 					
+					// some of the buttons/switches were released/turned off, refresh the dip status
 					dip_update = 1;
 					
 				}
@@ -114,7 +119,7 @@ ISR(TIMER0_COMPA_vect) {
 			
 			if ((debounce[p] & DEBOUNCE_MASK) == DEBOUNCE_MASK ) {
 				
-				// PREV = 0 ==> rising edge
+				// PREV=0 ==> rising edge
 				if ((button_status[p] & PREVIOUS_MASK) == 0) {
 					
 					/////////////////////////////////////////////////
@@ -136,9 +141,10 @@ ISR(TIMER0_COMPA_vect) {
 					
 					if ((button_status[p] & COUNTER_MASK) >= COUNTER_THRESHOLD) {
 						// threshold reached = long press :: lock
-						// button_status[p] |= LONG_SET | LOCK_SET;
 						button_status[p] |= LOCK_SET;
 						
+						// some of the buttons/switches were hold down longer than the long press threshold
+						// refresh the dip status
 						dip_update = 1;
 						
 						/////////////////////////////////////////////////
@@ -155,7 +161,7 @@ ISR(TIMER0_COMPA_vect) {
 	//   E N C O D E R    D E B O U N C E
 	// ==============================================================
 	
-	// read values in
+	// read in values
 	encoder_debounce[0] = (encoder_debounce[0] << 1) | readValue(E1_A);
 	encoder_debounce[1] = (encoder_debounce[1] << 1) | readValue(E1_B);
 	
@@ -192,7 +198,7 @@ ISR(TIMER0_COMPA_vect) {
 		// if current pin is master, process the edges
 		if ((encoder_status[i] & E_MASTER_MASK) != 0) {
 			
-			// P=1 and A=0 == falling edge
+			// Previous=1 and Actual=0 ==> falling edge
 			if ( (encoder_status[i] & (E_ACTUAL_MASK | E_PREVIOUS_MASK) ) == 0x40 ) {
 								
 				if ((encoder_status[i+1] & E_ACTUAL_MASK) == 0) {
@@ -212,52 +218,30 @@ ISR(TIMER0_COMPA_vect) {
 		
 	} while (i--);
 	
+	
+	// ==============================================================
+	//   D I P   U P D A T E 
+	// ==============================================================
+	
 	// if something happened with the inputs, refresh the dip switches status
 	if (dip_update) {
 		cli();
+		// clear the status
 		dip_status = 0;
+		// load the actual states of the dip switches
+		// there will be no bouncing effect, because this code only runs when the switches 
+		// are released (no spring action) or when they held down until a long press occurs
 		dip_status |= (button_status[16] & ACTUAL_MASK) >> 7; 
 		dip_status |= (button_status[20] & ACTUAL_MASK) >> 8;
 		dip_status |= (button_status[24] & ACTUAL_MASK) >> 9;
 		dip_status |= (button_status[28] & ACTUAL_MASK) >> 10;
-		dip_status |= (button_status[0] & ACTUAL_MASK)  >> 11;
-		dip_status |= (button_status[4] & ACTUAL_MASK)  >> 12;
-		dip_status |= (button_status[8] & ACTUAL_MASK)  >> 13;
+		dip_status |= (button_status[0] &  ACTUAL_MASK) >> 11;
+		dip_status |= (button_status[4] &  ACTUAL_MASK) >> 12;
+		dip_status |= (button_status[8] &  ACTUAL_MASK) >> 13;
 		dip_status |= (button_status[12] & ACTUAL_MASK) >> 14;
 		sei();
 	}
-	
-	// debug ISR execution time
-	// low(PORTB,PB2);
 }
-
-/**
- * \addtogroup buttons
- * \{
- */
-/*
-uint8_t get_button_event( uint8_t p ) {
-	
-	// check for long press
-	if ((button_status[p] & LONG_MASK) != 0 ) {
-		cli();
-		button_status[p] &= LONG_CLEAR;
-		sei();
-		return EVENT_LONG_PRESS;
-	}
-	
-	// check for short press
-	if ((button_status[p] & SHORT_MASK) != 0 ) {
-		cli();
-		button_status[p] &= SHORT_CLEAR;
-		sei();
-		return EVENT_SHORT_PRESS;
-	}
-	
-	return EVENT_NOTHING;
-}
-*/
-/** \} */
 
 /**
  * \addtogroup encoders
@@ -265,6 +249,7 @@ uint8_t get_button_event( uint8_t p ) {
  */
 int8_t get_encoder_value( uint8_t p ) {
 	
+	// read out, and delete the counter value atomically
 	if (encoder_counter[p] != 0) {
 		int8_t ret = encoder_counter[p];
 		cli();
@@ -275,6 +260,5 @@ int8_t get_encoder_value( uint8_t p ) {
 	return 0;
 }
 /** \} */
-
 
 /** \} */

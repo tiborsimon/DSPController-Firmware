@@ -1,9 +1,12 @@
-/*
- * DSPControllerB.c
+/**
+ * \addtogroup main
+ * \{
+ * \file
+ * \author Tibor Simon <tiborsimon@tibor-simon.com>
+ * \version 1.0
  *
- * Created: 10/5/2013 12:29:35 AM
- *  Author: Tibor
- */ 
+ * \ref license
+ */
 
 
 #include "includes.h"
@@ -13,9 +16,12 @@
 
 int main(void) {
 	
+	// local string buffer for the LCD
 	char s[16];
+	// local cycle counter
 	int i = 0;
 
+	// init all of the modules
 	io_init();
 	input_init();
 	lcd_init();
@@ -23,25 +29,8 @@ int main(void) {
 	usart_logger_init();
 	spi_init();
 	
-	/*
-	welcome_screen(s);
 	
-	while(!(SPSR & (1<<SPIF)));
-	
-	
-	lcd_home();
-	sprintf(s,"     Ready!     ");
-	lcd_writeString(s);
-	
-	lcd_newLine();
-	sprintf(s,"                ");
-	lcd_writeString(s);
-	
-	lcd_clear();
-	SPDR = 0x80;
-	
-	*/
-	
+	// write greetings text on the display
 	lcd_home();
 	sprintf(s," DSP Controller ");
 	lcd_writeString(s);
@@ -49,10 +38,14 @@ int main(void) {
 	sprintf(s,"      v1.1      ");
 	lcd_writeString(s);
 	
+	// start the core engine
 	sei();
 	
+	
+	// infinite loop with LCD and LED handling
 	while(1) {
 		
+		// if LED command was arrived via the spi, write it out atomically
 		if (spi_flag == SPI_FLAG_LED) {
 			cli();
 			setLed(spi_receive_buffer[1],spi_receive_buffer[0]);
@@ -61,9 +54,11 @@ int main(void) {
 			refreshLeds();
 		}
 		
+		// if TOP LCD command was arrived via the spi, write it out atomically
 		if (spi_flag == SPI_FLAG_LCD_TOP) {
 			cli();
 			i = 15;
+			// copy characters from the SPI buffer to the local buffer
 			do {
 				s[i] = spi_receive_buffer[i];
 			} while (i--);
@@ -73,6 +68,7 @@ int main(void) {
 			lcd_writeString(s);
 		}
 		
+		// if BOTTOM LCD command was arrived via the spi, write it out atomically
 		if (spi_flag == SPI_FLAG_LCD_BOTTOM) {
 			cli();
 			i = 15;
@@ -86,123 +82,6 @@ int main(void) {
 		}
 	}
 	return 0;
-}
-
-
-#define LED_ANIM_DUR	5
-#define LED_ANIM_MOD	2
-
-void led_up() {
-	setLed(0x01,0x01);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+3*LED_ANIM_MOD);
-	
-	setLed(0x03,0x03);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
-	
-	setLed(0x07,0x07);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
-	
-	setLed(0x0f,0x0f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x0f,0x0f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x0f,0x0f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x1f,0x1f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x3f,0x3f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR);
-	
-	setLed(0x7f,0x7f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR);
-	
-	setLed(0xff,0xff);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR);
-}
-
-void led_down() {
-	setLed(0xff,0xff);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR);
-	
-	setLed(0x7f,0x7f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR);
-	
-	setLed(0x3f,0x3f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR);
-	
-	setLed(0x1f,0x1f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x0f,0x0f);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x07,0x07);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+LED_ANIM_MOD);
-	
-	setLed(0x03,0x03);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
-	
-	setLed(0x01,0x01);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+2*LED_ANIM_MOD);
-	
-	setLed(0x00,0x00);
-	refreshLeds();
-	_delay_ms(LED_ANIM_DUR+3*LED_ANIM_MOD);
-}
-
-void welcome_screen(char* s) {
-	
-	lcd_home();
-	sprintf(s," DSP Controller ");
-	lcd_writeString(s);
-	lcd_newLine();
-	sprintf(s,"      v1.1      ");
-	lcd_writeString(s);
-	
-	_delay_ms(1500);
-	
-	lcd_newLine();
-	sprintf(s,"  Simon  Tibor  ");
-	lcd_writeString(s);
-	
-	_delay_ms(700);
-	
-	led_up();
-	led_down();
-	
-	_delay_ms(50);
-	
-	led_up();
-	led_down();
-	
-	lcd_home();
-	sprintf(s,"   Waiting for  ");
-	lcd_writeString(s);
-	lcd_newLine();
-	sprintf(s,"SPI connection..");
-	lcd_writeString(s);
 }
 
 
@@ -227,16 +106,11 @@ void io_init() {
 	setInputWPullup(E2_B);
 	setInputWPullup(E3_B);
 	
-	/*===========================================================
-	  S E T   D E F A U L T   S T A T E S
-	===========================================================*/
-	
+	// IN_LOAD is low active, set it high
 	setHigh(IN_LOAD);
 }
 
-/**
- * Init Timer0 to Output Compare Match A Interrupt @ 0.5 ms.
- */
+
 void timer_init() {
 	// Triggers an interrupt in each 0.5 miliseconds.
 	// enable Timer/Counter0 Output Compare Match A Interrupt
@@ -247,28 +121,9 @@ void timer_init() {
 	
 	// prescaler: 64, CTC 125 = 0.5ms interrupts
 	OCR0A = 125; // 0.5ms @ div64
-	// OCR0A = 250; // 1ms @ div64
 	
 	// set prescaler to 64
 	TCCR0B = (0<<CS02) | (1<<CS01) | (1<<CS00);  // div 64
-	// TCCR0B = (1<<CS02) | (0<<CS01) | (1<<CS00); // div 1024
 }
 
-/*
-void print_prev(uint8_t p, uint8_t prev) {
-	char s[16];
-	
-	if (prev == 1) {
-		sprintf(s,"%d: LONG       ",p);
-		lcd_newLine();
-		lcd_writeString(s);
-	}
-	
-	if (prev == 2) {
-		sprintf(s,"%d: SHORT       ",p);
-		lcd_newLine();
-		lcd_writeString(s);
-	}
-	
-}
-*/
+/** \} */

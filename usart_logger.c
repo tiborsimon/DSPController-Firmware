@@ -1,6 +1,6 @@
 /**
  * \addtogroup logger
- * @{	
+ * \{	
  * \file
  * \author Tibor Simon <tiborsimon@tibor-simon.com>
  * \version 1.0

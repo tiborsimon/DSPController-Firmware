@@ -11,7 +11,7 @@
 #ifndef USART_LOGGER_H_
 #define USART_LOGGER_H_
 
-	// #define LOGGER_ON_  /*!< Comment out this preprocessor variable and USART Logger will not compile to your binary file. */
+	#define LOGGER_ON_  /*!< Comment out this preprocessor variable and USART Logger will not compile to your binary file. */
 
 	#ifdef LOGGER_ON_
 		#define LOG(A, ...) printf(A,##__VA_ARGS__)	/**< Logger macro that wraps around the \a printf function. */

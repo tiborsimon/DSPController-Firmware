@@ -1,13 +1,13 @@
-/*
- * includes.h
+/**
+ * \addtogroup main
+ * \{
+ * \file
+ * \author Tibor Simon <tiborsimon@tibor-simon.com>
+ * \version 1.0
  *
- * Created: 10/8/2013 7:52:42 PM
- *  Author: Tibor
+ * \ref license
+ *
  */ 
-
-
-// #ifndef INCLUDES_H_
-// #define INCLUDES_H_
 
 #include <avr/io.h>
 #include <stdio.h>
@@ -19,7 +19,7 @@
 #include "input.h"
 #include "spi.h"
 
-#define F_CPU 16000000UL
+#define F_CPU 16000000UL	 /**< CPU clock frequency */
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
@@ -32,5 +32,4 @@ extern volatile uint8_t _led_l;  /**< Global variable that holds the value of th
 extern volatile uint8_t _led_r;  /**< Global variable that holds the value of the right led bar. */
 /** \} */
 
-
-// #endif /* INCLUDES_H_ */
+/** \} */
